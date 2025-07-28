@@ -242,7 +242,5 @@ You can safely ignore this for most species/genomes – it only affects some sum
 ## Additional Resources
 
 - [nf-core/rnaseq documentation](https://nf-co.re/rnaseq/usage)
-- [Genomics Introduction (Harvard)](https://hbctraining.github.io/Intro-to-rnaseq/)
-- [Bioinformatics Workbook](https://www.bioinformaticsworkbook.org/)
 
 ---
