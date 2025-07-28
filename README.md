@@ -2,9 +2,9 @@
 Code for Emily's thesis 
 
 
-# README: nf-core/rnaseq Analysis – Beginner’s Guide
+# README: nf-core/rnaseq Analysis 
 
-This document will guide you through preparing data and running the [nf-core/rnaseq](https://nf-co.re/rnaseq/) pipeline to analyze RNA-seq data. It assumes you are working on an academic cluster (like SLURM/HPC), but have **no experience with bioinformatics or Linux**.
+This document will guide you through preparing data and running the [nf-core/rnaseq](https://nf-co.re/rnaseq/) pipeline to analyze RNA-seq data. 
 
 ---
 
@@ -24,18 +24,7 @@ This document will guide you through preparing data and running the [nf-core/rna
 
 ---
 
-## Introduction
-
-**What is this?**  
-This guide gets your RNA-seq data from raw files to biological results, using trusty, peer-reviewed tools. You don’t need to know how to code or be a Linux expert—just follow each step.
-
----
-
 ## 1. Set up Folders
-
-**Why?** Keeping everything organized is key, and copying files prevents accidental changes to your master data.
-
-**Open a terminal** (your cluster command line window) and paste these commands **one at a time**. If you see an error, do not worry—read the message and ask for help.
 
 ```bash
 # Make a folder for your project:
@@ -59,7 +48,7 @@ First, **find where your data lives** (for example, `/n/netscratch/.../fastq`).
 Then **copy** all files:
 
 ```bash
-# Change the FILE_PATH to where your data actually is!
+# Change the FILE_PATH to where your data actually is
 cp /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/RNA_round1_re_demultiplex/fastq/*.fastq.gz .
 ```
 
@@ -69,7 +58,7 @@ cp /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/RNA_round1_re_demultip
 
 We'll use **Conda** (an environment manager) so that all the software will work together.
 
-If you’re on Harvard FASRC or another academic cluster, you may need to load python:
+Load python:
 ```bash
 module load python/3.10.9-fasrc01
 ```
@@ -85,7 +74,7 @@ conda activate env_nf_rna
 ```bash
 nextflow run nf-core/rnaseq --help
 ```
-If you see help output, you’re ready!
+If you see help output, it's working
 
 ---
 
@@ -196,8 +185,6 @@ nextflow run nf-core/rnaseq \
 
 ## 8. Submit a Batch Job
 
-Batch jobs let the computer do the work even if you log out!
-
 Put this into a file called `nf_core_rna_test1_sakLuc.sh`:
 
 ```bash
@@ -250,8 +237,6 @@ You can safely ignore this for most species/genomes – it only affects some sum
   → Double-check you gave the right sample CSV and output folder.
 - If you get a “file not found” error, check your file paths with `ls some_path`.
 - If your job fails with “not enough memory,” increase the `--mem` value in your script (e.g. 150000 → 200000).
-- To get help, ask a team member or post in the [nf-core Slack](https://nf-co.re/join/slack).
-
 ---
 
 ## Additional Resources
@@ -261,14 +246,3 @@ You can safely ignore this for most species/genomes – it only affects some sum
 - [Bioinformatics Workbook](https://www.bioinformaticsworkbook.org/)
 
 ---
-
-**End of Guide!**  
-You can copy and share this as `README.md` in your project folder.
-
----
-
-**If you’re stuck, ask a colleague or mentor for help — you’re never “bothering” by asking!**
-
----
-
-**Good luck & welcome to bioinformatics!**
