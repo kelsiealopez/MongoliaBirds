@@ -108,8 +108,6 @@ ls ncbi_dataset/data/GCA_013396695.1/
 - A genome file (`*.fna`)
 - An annotation file (`genomic.gtf`)
 
-*If in doubt, ask a team member if you have the right files.*
-
 **Go BACK to your main folder:**
 
 ```bash
@@ -215,7 +213,7 @@ nextflow run nf-core/rnaseq \
 
 **Submit your job to the queue:**
 ```bash
-sbatch nf_core_rna_test1_sakLuc.sh
+sbatch nf_core_rna_test1_sakLuc.sh &
 ```
 
 ---
@@ -223,14 +221,14 @@ sbatch nf_core_rna_test1_sakLuc.sh
 ## 9. Understanding Output and Warnings
 
 All output will appear in your output folder (in this example `$out_dir`).  
-Look for the **MultiQC report** file; it gives an overview!
+Look for the **MultiQC report** file; it gives an overview
 
 **Warning about “gene_biotype” not found**  
 You can safely ignore this for most species/genomes – it only affects some summary plots, not the main results.
 
 ---
 
-## 10. Common Problems and Tips
+## 10. Common Problems
 
 - If you see:  
   `Missing required parameter(s): input, outdir`  
