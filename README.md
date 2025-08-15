@@ -189,7 +189,7 @@ Put this into a file called `nf_core_rna_test1_sakLuc.sh`:
 
 ```bash
 #!/bin/bash
-#SBATCH -p edwards,test,shared
+#SBATCH -p edwards,shared
 #SBATCH -c 16
 #SBATCH -t 0-12:00
 #SBATCH -o nf_core_rna_test1_sakLuc_%j.out
