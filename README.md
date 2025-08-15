@@ -4,7 +4,7 @@ Code for Emily's thesis
 
 # README: nf-core/rnaseq Analysis 
 
-This document will guide you through preparing data and running the [nf-core/rnaseq](https://nf-co.re/rnaseq/) pipeline to analyze RNA-seq data. 
+This document will guide you through preparing data and running the [nf-core/rnaseq](https://nf-co.re/rnaseq/) pipeline to analyze RNA-seq data. There will be one run for those reads that will be mapped to Great Tit reference genome and another run for those reads that will be mapped to the other one.. Then we will filter for one2one orthologs using TOGA... [code coming soon].   
 
 ---
 
