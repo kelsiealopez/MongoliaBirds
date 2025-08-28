@@ -248,7 +248,7 @@ You can safely ignore this for most species/genomes – it only affects some sum
 # Running TOGA to find one2one orthologs 
 
 
-
+## Installation, configuring, and running test data
 ```bash
 ### trying to run toga 
 
