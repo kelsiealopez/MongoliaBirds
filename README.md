@@ -244,3 +244,92 @@ You can safely ignore this for most species/genomes – it only affects some sum
 - [nf-core/rnaseq documentation](https://nf-co.re/rnaseq/usage)
 
 ---
+
+# Running TOGA to find one2one orthologs 
+
+
+
+```bash
+### trying to run toga 
+
+https://github.com/hillerlab/TOGA
+
+# enter python environment with my user specific alias 
+py_env
+
+
+# make a new python environment for toga. i had to do this to run toga cause i guess it relies on netflow (from the TOGA github insttructinos) 
+
+
+conda create --name nf_toga nextflow              # Create a new environment
+conda activate nf_toga                         
+
+# change into thamnophilus directory 
+cd /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus
+
+# clone the repository
+git clone https://github.com/hillerlab/TOGA.git
+cd TOGA
+
+
+# install necessary oython packages using pip 
+
+python3 -m pip install -r requirements.txt --user
+
+
+# configure and check that toga worked 
+./configure.sh
+./run_test.sh micro
+
+
+
+# final test
+
+wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.2bit
+wget https://hgdownload.cse.ucsc.edu/goldenpath/mm10/bigZips/mm10.2bit
+# testing that toga is working
+
+
+
+
+
+test_toga.sh
+
+#!/bin/bash
+#SBATCH -p edwards 
+#SBATCH -c 48 # request 8 cores (it is copying 8 files at a time in parallel, then when the 8th one is done copying it moves into the next 8 files )
+#SBATCH -t 0-12:00 # request 12 hours 
+#SBATCH -o test_toga_%j.out # file name to write output to
+#SBATCH -e test_toga_%j.err # file name to write errors to 
+#SBATCH --mem=100000 # memory requested (100Gb) 
+#SBATCH --mail-type=END # send me an email when my job is done running 
+
+#py_env
+
+# don't forget to be in nf_toga
+
+#conda activate nf_toga
+
+path_to_human_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/hg38.2bit"
+path_to_mouse_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/mm10.2bit"
+workdir="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA"
+path_to_nextflow_config_dir="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/nextflow_config_files"
+
+cd ${workdir}
+
+./toga.py test_input/hg38.mm10.chr11.chain test_input/hg38.genCode27.chr11.bed \
+${path_to_human_2bit} ${path_to_mouse_2bit} \
+--kt --pn test -i supply/hg38.wgEncodeGencodeCompV34.isoforms.txt \
+--nc ${path_to_nextflow_config_dir} --cb 3,5 --cjn 500 \
+--u12 supply/hg38.U12sites.tsv --ms
+
+
+
+# Now that the test is one you have to make these files of your own 
+
+
+```
+
+
+
+
