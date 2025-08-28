@@ -297,7 +297,7 @@ test_toga.sh
 
 #!/bin/bash
 #SBATCH -p edwards 
-#SBATCH -c 48 # request 8 cores (it is copying 8 files at a time in parallel, then when the 8th one is done copying it moves into the next 8 files )
+#SBATCH -c 48 
 #SBATCH -t 0-12:00 # request 12 hours 
 #SBATCH -o test_toga_%j.out # file name to write output to
 #SBATCH -e test_toga_%j.err # file name to write errors to 
@@ -324,12 +324,25 @@ ${path_to_human_2bit} ${path_to_mouse_2bit} \
 --u12 supply/hg38.U12sites.tsv --ms
 
 
-
-# Now that the test is one you have to make these files of your own 
+# oof i could have requested WAY less resources but i wanted it to run fast. 
+[kelsielopez@boslogin08 TOGA]$ seff 30343763
+Job ID: 30343763
+Cluster: odyssey
+User/Group: kelsielopez/edwards_lab
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 48
+CPU Utilized: 00:00:53
+CPU Efficiency: 0.12% of 11:55:12 core-walltime
+Job Wall-clock time: 00:14:54
+Memory Utilized: 1.37 GB
+Memory Efficiency: 1.41% of 97.66 GB (97.66 GB/node)
+[kelsielopez@boslogin08 TOGA]$
+# try requesting like 2 hrs and 16 Gb when you run the test. TBD how much memory we should request when we run on the actual samples
 
 
 ```
 
-
+## Now that the test is one you have to make these files of your own 
 
 
