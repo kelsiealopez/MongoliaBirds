@@ -346,3 +346,75 @@ Memory Efficiency: 1.41% of 97.66 GB (97.66 GB/node)
 ## Now that the test is one you have to make these files of your own 
 
 
+
+
+## TOGA analysis
+# <will add this really soon>
+
+
+## Post TOGA - getting one2one orthologs for differential expression analysis 
+
+```bash
+
+# i copied this stuff over from your nextflow directories! 
+
+cp /n/netscratch/edwards_lab/Lab/enickhes/nfcore_reads/output_pauroreus_2/star_salmon/salmon.merged.gene_counts.tsv /n/netscratch/edwards_lab/Lab/kelsielopez/emily/pauroreus
+
+cp /n/netscratch/edwards_lab/Lab/enickhes/nfcore_reads/output_pm_m_3/star_salmon/salmon.merged.gene_counts.tsv /n/netscratch/edwards_lab/Lab/kelsielopez/emily/parus_m_m
+
+
+
+### merging data sets by correct toga one2one orthologs
+
+# output file with orthology of each gene 
+/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/test2/orthology_classification.tsv
+
+# path to 
+/n/netscratch/edwards_lab/Lab/kelsielopez/emily/pauroreus/salmon.merged.gene_counts.tsv
+/n/netscratch/edwards_lab/Lab/kelsielopez/emily/parus_m_m/salmon.merged.gene_counts.tsv
+
+
+
+# results of toga are in this directory /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/test2
+orthology="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/test2/orthology_classification.tsv"
+
+pauroreus_counts="/n/netscratch/edwards_lab/Lab/kelsielopez/emily/pauroreus/salmon.merged.gene_counts.tsv"
+
+parus_m_m_counts="/n/netscratch/edwards_lab/Lab/kelsielopez/emily/parus_m_m/salmon.merged.gene_counts.tsv"
+
+
+
+
+# put all one2ones into this tsv file. 
+grep 'one2one' orthology_classification.tsv > orthology_classification_one2one.tsv
+
+
+# now filter a list of all these genes .. unique orthologs
+
+cut -f1 orthology_classification_one2one.tsv | sort | uniq > one2one_t_genes.txt
+
+
+# there are 13,036 one2one orthologs 
+kelsielopez@boslogin06 test2]$ wc -l one2one_t_genes.txt
+13036 one2one_t_genes.txt
+[kelsielopez@boslogin06 test2]$ head one2one_t_genes.txt
+A1CF
+A4GNT
+AAAS
+AACS
+AADAC
+AADAT
+AAGAB
+AAK1
+AAMDC
+AAMP
+[kelsielopez@boslogin06 test2]$ 
+
+
+
+```
+
+
+
+## Now run DESeq2_TOGA_all_samples.R
+
