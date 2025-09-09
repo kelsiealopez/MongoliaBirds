@@ -721,6 +721,10 @@ ${parMaj_2bit} ${ficAlb_2bit} \
 
 
 
+# this is the important output from toga !
+
+/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/test2/orthology_classification.tsv
+
 ```
 
 
