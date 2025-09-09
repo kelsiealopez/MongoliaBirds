@@ -345,7 +345,165 @@ Memory Efficiency: 1.41% of 97.66 GB (97.66 GB/node)
 
 ## Now that the test is one you have to make these files of your own 
 ## TOGA analysis
- ## will add this code really soon
+
+```bash
+# before TOGA you need to prepare a chain file from the program 'makelastzchains'
+
+
+#i had to make another nextflow environment... so many... lol 
+
+module load python/3.12.8-fasrc01
+conda create --name nf_lastz bioconda::nextflow python=3.12
+conda activate nf_lastz
+
+
+# change into scratch directory 
+cd /n/netscratch/edwards_lab/Lab/kelsielopez
+
+# i downloaded this from github and moved it to my scratch 
+/n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52
+
+tar -xvf lastz-1.04.52.tar
+
+
+cd src
+make
+make install
+
+# test that it was installed
+
+make test
+
+# the path to this needs to be added to the .bashrc folder in your home directory
+
+/n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52/src
+
+# it means adding a line like this to the .bashrc folder (but make sure to replace it with your path) 
+
+# edit it with
+
+nano .bashrc
+
+export PATH=/n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52/src:$PATH
+
+source .bashrc
+
+
+# now change to scratch and download make lastz chains
+cd /n/netscratch/edwards_lab/Lab/kelsielopez
+
+git clone https://github.com/hillerlab/make_lastz_chains.git
+cd make_lastz_chains
+# install python packages (just one actually for now)
+pip3 install -r requirements.txt
+
+# it says to do this ./install_dependencies.py but skip it because we are goin got use mamba to install the dependencies. this threw me the biggest issue with make lastz chains!
+
+mamba install ucsc-chainscore
+mamba install ucsc-twoBitToFa
+mamba install ucsc-faToTwoBit
+mamba install ucsc-axtChain
+mamba install ucsc-chainAntiRepeat
+mamba install ucsc-chainMergeSort
+mamba install ucsc-chainSort
+mamba install ucsc-chainNet
+mamba install ucsc-axtToPsl
+mamba install ucsc-chainFilter
+mamba install ucsc-pslSortAcc
+mamba install ucsc-chainCleaner
+
+# test that they all were downloaded  by calling each program
+twoBitToFa
+faToTwoBit
+pslSortAcc
+axtChain
+chainAntiRepeat
+chainMergeSort
+chainCleaner
+chainSort
+chainScore
+chainNet
+axtToPsl
+chainFilter
+
+
+
+# now when i had make_lastz_chains downloaded i had to edit this file becaus of some issue with it not being compatibile with the version of nextflow i was running 
+
+sed -i \
+  -e 's|process.memory = { 4.GB \* task.attempt }|process.memory = '\''4 GB'\''|g' \
+  -e 's|process.time = {{ {self.time} \* task.attempt }}|process.time = '\''2h'\''|g' \
+  /n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/parallelization/nextflow_wrapper.py
+
+# i also had to edit this to allocate more time! 4 Gb per job and 2 hrs is not enough. 
+
+nano /n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/parallelization/nextflow_wrapper.py
+
+# go in and change '4' to '32' Gb and '2h' to '6h'.. then i got it to run!
+
+# here is my script for running it! but before you run this, you have to rename your reference genomes because they have a long name that makes the program crash...
+# for example, this is what the labels on the reference genome look like
+
+(python_env1) [kelsielopez@holy8a26602 Lab]$ ls /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3
+cds_from_genomic.fna					      genomic.genePred			  genomic.gtf			  rna.fna
+GCF_001522545.3_Parus_major1.1_genomic_abreviated_naming.fna  genomic.genePred.bed12.bed	  genomic_renamed_toga.bed	  sequence_report.jsonl
+GCF_001522545.3_Parus_major1.1_genomic.fna		      genomic.genePred.bed12.renamed.bed  genomic_renamed_toga_BED12.bed
+genomic.bed						      genomic.gff			  protein.faa
+_major1.1_genomic.fna | headoly8a26602 Lab]$ grep -e ">" /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/GCF_001522545.3_Parus_
+>NC_031768.1 Parus major isolate Abel chromosome 1, Parus_major1.1, whole genome shotgun sequence
+>NC_031769.1 Parus major isolate Abel chromosome 2, Parus_major1.1, whole genome shotgun sequence
+>NC_031770.1 Parus major isolate Abel chromosome 3, Parus_major1.1, whole genome shotgun sequence
+>NC_031771.1 Parus major isolate Abel chromosome 4, Parus_major1.1, whole genome shotgun sequence
+>NC_031772.1 Parus major isolate Abel chromosome 4A, Parus_major1.1, whole genome shotgun sequence
+>NC_031773.1 Parus major isolate Abel chromosome 1A, Parus_major1.1, whole genome shotgun sequence
+>NC_031774.1 Parus major isolate Abel chromosome 5, Parus_major1.1, whole genome shotgun sequence
+>NC_031775.1 Parus major isolate Abel chromosome 6, Parus_major1.1, whole genome shotgun sequence
+>NC_031776.1 Parus major isolate Abel chromosome 7, Parus_major1.1, whole genome shotgun sequence
+>NC_031777.1 Parus major isolate Abel chromosome 8, Parus_major1.1, whole genome shotgun sequence
+(python_env1) [kelsielopez@holy8a26602 Lab]$
+
+# all those extra comments made the program crash 
+
+parus_major_genome="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/GCF_001522545.3_Parus_major1.1_genomic.fna"
+parus_major_genome_abreviated_fasta_naming="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/GCF_001522545.3_Parus_major1.1_genomic_abreviated_naming.fna"
+
+
+awk '{if($0 ~ /^>/){split($1, a, ">"); print ">"a[2]} else {print $0}}' ${parus_major_genome} > ${parus_major_genome_abreviated_fasta_naming}
+# i renamed it like this. repeat for ficedula albicollis. then input the renamed fasta when you run make lastz chains 
+
+
+
+test5_lastz_chains_mongolia_data.sh
+
+#!/bin/bash
+#SBATCH -p shared
+#SBATCH -c 1
+#SBATCH -t 3-00:00
+#SBATCH -o test5_lastz_chains_mongolia_data_%j.out
+#SBATCH -e test5_lastz_chains_mongolia_data_%j.err
+#SBATCH --mem=64000
+#SBATCH --mail-type=END
+  
+cd /n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains
+
+target_genome_id="parMaj" # i'm going to simplify the IDs for downstream purposes
+query_genome_id="ficAlb"
+target_genome_sequence="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/GCF_001522545.3_Parus_major1.1_genomic_abreviated_naming.fna"
+query_genome_sequence="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/ficedula_albicollis/data/GCF_000247815.1/GCF_000247815.1_FicAlb1.5_genomic_abreviated_naming.fna"
+
+./make_chains.py ${target_genome_id} ${query_genome_id} \
+${target_genome_sequence} ${query_genome_sequence} \
+--project_dir test5_v2_reDownload \
+--job_time_req 6h --executor slurm \
+--cluster_queue shared
+
+
+
+
+
+```
+
+
 
 
 ## Post TOGA - getting one2one orthologs for differential expression analysis 
