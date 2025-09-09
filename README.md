@@ -344,10 +344,6 @@ Memory Efficiency: 1.41% of 97.66 GB (97.66 GB/node)
 ```
 
 ## Now that the test is one you have to make these files of your own 
-
-
-
-
 ## TOGA analysis
  ## will add this code really soon
 
