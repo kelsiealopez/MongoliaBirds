@@ -362,7 +362,17 @@ conda activate nf_lastz
 # change into scratch directory 
 cd /n/netscratch/edwards_lab/Lab/kelsielopez
 
-# i downloaded this from github and moved it to my scratch 
+# i downloaded this from github and moved it to my scratch using filezilla. 
+
+# go here, 
+https://github.com/lastz/lastz
+
+# then on the right, navigate to 'Releases'
+https://github.com/lastz/lastz/releases
+
+# under 'Generally inconsequential update.' download the Source code (tar.gz) file 
+
+
 /n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52
 
 tar -xvf lastz-1.04.52.tar
@@ -380,14 +390,15 @@ make test
 
 /n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52/src
 
-# it means adding a line like this to the .bashrc folder (but make sure to replace it with your path) 
+# it means adding a line like this to the .bashrc folder (but make sure to replace it with your path!!!) 
 
-# edit it with
+# change to home directory 
+cd ~
 
+# edit .bashrc folder with nano
 nano .bashrc
 
 export PATH=/n/netscratch/edwards_lab/Lab/kelsielopez/lastz-1.04.52/src:$PATH
-
 source .bashrc
 
 
@@ -430,7 +441,7 @@ chainFilter
 
 
 
-# now when i had make_lastz_chains downloaded i had to edit this file becaus of some issue with it not being compatibile with the version of nextflow i was running 
+# now when i had make_lastz_chains downloaded i had to edit this file becaus of some issue with it not being compatibile with the version of nextflow i was running. i got rid of the squiggly brackets "{ }"
 
 sed -i \
   -e 's|process.memory = { 4.GB \* task.attempt }|process.memory = '\''4 GB'\''|g' \
@@ -500,6 +511,213 @@ ${target_genome_sequence} ${query_genome_sequence} \
 --cluster_queue shared
 
 
+
+# when this program works, you should have a .chain.gz file 
+```
+
+
+## TOGA - step 2 - preparing and running with your own data  
+## https://github.com/hillerlab/TOGA
+
+```bash
+
+# enter environment which you downloaded TOGA in
+
+conda activate nf_toga
+
+# lets prepare the input files for toga
+# make the input bed file. use the genomic.gtf file from great tit that was downloaded from ncbi to make a bed file.
+
+# download programs gtfToGenePred and genePredToBed
+mamba install gtfToGenePred
+mamba install genePredToBed
+
+# test that they were downloaded by calling the programs 
+(nf_toga) [kelsielopez@holy8a26502 kelsielopez]$ genePredToBed
+genePredToBed - Convert from genePred to bed format. Does not yet handle genePredExt
+usage:
+   genePredToBed in.genePred out.bed
+options:
+   -tab - genePred fields are separated by tab instead of just white space
+   -fillSpace - when tab input, fill space chars in 'name' with underscore: _
+   -score=N - set score to N in bed output (default 0)
+(nf_toga) [kelsielopez@
+
+input="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/genomic"
+
+
+# 1. GTF to genePred
+gtfToGenePred -ignoreGroupsWithoutExons ${input}.gtf ${input}.genePred
+
+
+# 2. genePred to BED12
+genePredToBed ${input}.genePred ${input}.genePred.bed12.bed
+
+
+# also need to rename this file to match the output from make_lastz_chains. make_lastz_chains renamed everything from the reference genomes 
+# into these files parMaj_chrom_rename_table and ficAlb_chrom_rename_table. again its just something weird with the naming requirements for the programs
+# make lastz chains removed the '.1' at the end of the name of the chromosomes 
+
+python_env1) [kelsielopez@holy8a26602 make_lastz_chains]$ cd test5_v2_reDownload
+(python_env1) [kelsielopez@holy8a26602 test5_v2_reDownload]$ ls
+ficAlb_chrom_rename_table.tsv  parMaj_renamed_chrom.fa	 query.chrom.sizes     steps.json	   target_partitions.txt     temp_fill_chain	    temp_lastz_run
+ficAlb_renamed_chrom.fa        pipeline_parameters.json  query_partitions.txt  target.2bit	   temp_chain_run	     temp_kent
+parMaj_chrom_rename_table.tsv  query.2bit		 run.log	       target.chrom.sizes  temp_concat_lastz_output  temp_lastz_psl_output
+(python_env1) [kelsielopez@holy8a26602 test5_v2_reDownload]$ pwd
+/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test5_v2_reDownload
+(python_env1) [kelsielopez@holy8a26602 test5_v2_reDownload]$ head parMaj_chrom_rename_table.tsv
+NC_031768.1	NC_031768
+NC_031769.1	NC_031769
+NC_031770.1	NC_031770
+NC_031771.1	NC_031771
+NC_031772.1	NC_031772
+NC_031773.1	NC_031773
+NC_031774.1	NC_031774
+NC_031775.1	NC_031775
+NC_031776.1	NC_031776
+NC_031777.1	NC_031777
+(python_env1) [kelsielopez@holy8a26602 test5_v2_reDownload]$ head ficAlb_chrom_rename_table.tsv
+NC_021671.1	NC_021671
+NW_004775877.1	NW_004775877
+NC_021672.1	NC_021672
+NW_004775878.1	NW_004775878
+NW_004775879.1	NW_004775879
+NC_021673.1	NC_021673
+NW_004775880.1	NW_004775880
+NC_021674.1	NC_021674
+NC_021675.1	NC_021675
+NW_004775881.1	NW_004775881
+(python_env1) [kelsielopez@holy8a26602 test5_v2_reDownload]$ 
+
+# so we are renaming the bed file to match this output from lastz chains.
+
+input="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/genomic"
+
+awk 'BEGIN{FS=OFS="\t"} 
+    NR==FNR {map[$1]=$2; next} 
+    {if ($1 in map) $1=map[$1]; print}' \
+    parMaj_chrom_rename_table.tsv ${input}.genePred.bed12.bed \
+    > ${input}.genePred.bed12.renamed.bed
+
+
+
+#the next input flie we need is 2bit files. this is another weird file format that is like a fasta, but binary, so i guess it is smaller.
+# the program faToTwoBit was downloaded when we ran lastz chains, so you can change into that environment
+
+conda activate nf_lastz
+
+ficAlb_fa="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/ficAlb_renamed_chrom"
+parMaj_fa="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/parMaj_renamed_chrom"
+
+
+nf_lastz) [kelsielopez@holy8a26602 TOGA]$ faToTwoBit
+faToTwoBit - Convert DNA from fasta to 2bit format
+usage:
+   faToTwoBit in.fa [in2.fa in3.fa ...] out.2bit
+options:
+   -long            use 64-bit offsets for index.   Allow for twoBit to contain more than 4Gb of sequence. 
+                    NOT COMPATIBLE WITH OLDER CODE.
+   -noMask          Ignore lower-case masking in fa file.
+   -stripVersion    Strip off version number after '.' for GenBank accessions.
+   -ignoreDups      Convert first sequence only if there are duplicate sequence
+                    names.  Use 'twoBitDup' to find duplicate sequences.
+   -namePrefix=XX.  add XX. to start of sequence name in 2bit.
+(nf_lastz) [kelsielopez@holy8a26602 TOGA]$ 
+
+
+
+faToTwoBit ${ficAlb_fa}.fa ${ficAlb_fa}.2bit
+faToTwoBit ${parMaj_fa}.fa ${parMaj_fa}.2bit
+
+
+# now these are the paths to our two bit files that we will input into toga. 
+ficAlb_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/ficAlb_renamed_chrom.2bit"
+parMaj_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/parMaj_renamed_chrom.2bit"
+
+
+# lastly, its necessary to prepare an isoform file
+# this tells us all the transcripts that correspond to each gene. put the path to the reference .gtf file for parus major 
+
+awk '$3=="transcript" && /transcript_id/ && /gene_id/' /n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/genomic.gtf \
+  | awk '{
+      match($0, /gene_id "([^"]+)"/, g)
+      match($0, /transcript_id "([^"]+)"/, t)
+      if(length(g) && length(t)) print g[1] "\t" t[1]
+    }' | sort | uniq > isoforms.tsv
+
+# this makes a file liek this, but it needs a header..
+(python_env1) [kelsielopez@holy8a26602 TOGA]$ head isoforms.tsv
+A1CF	XM_015633798.2
+A1CF	XM_015633799.2
+A1CF	XM_015633801.2
+A1CF	XM_015633802.2
+A1CF	XM_015633803.2
+A4GNT	XM_015637125.3
+AAAS	XM_015615913.3
+AAAS	XM_033511510.1
+AACS	XM_015644309.3
+(python_env1) [kelsielopez@holy8a26602 TOGA]$
+
+# open the file with nano to add tab separated 'geneID' and 'transcriptID'
+
+(python_env1) [kelsielopez@holy8a26602 TOGA]$ head isoforms.tsv
+geneID	transcriptID
+A1CF	XM_015633798.2
+A1CF	XM_015633799.2
+A1CF	XM_015633801.2
+A1CF	XM_015633802.2
+A1CF	XM_015633803.2
+A4GNT	XM_015637125.3
+AAAS	XM_015615913.3
+AAAS	XM_033511510.1
+AACS	XM_015644309.3
+(python_env1) [kelsielopez@holy8a26602 TOGA]$ 
+
+# now we have a path to our isoforms data 
+isoform_file="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/isoforms.tsv"
+
+# lastly, we need to specify the path to our chain file output from make lastz chains!
+chain="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/parMaj.ficAlb.final.chain.gz"
+
+
+# this is the script i used to run TOGA on the parus major and ficedulla albicollis
+
+nano test_toga_2.sh
+
+#!/bin/bash
+#SBATCH -p edwards 
+#SBATCH -c 16 
+#SBATCH -t 3-00:00 #  
+#SBATCH -o test_toga_2_%j.out # file name to write output to
+#SBATCH -e test_toga_2_%j.err # file name to write errors to 
+#SBATCH --mem=100000 # memory requested (100Gb) 
+#SBATCH --mail-type=END # send me an email when my job is done running 
+
+#py_env
+
+# don't forget to be in nf_toga
+
+#conda activate nf_toga
+
+
+ficAlb_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/ficAlb_renamed_chrom.2bit"
+parMaj_2bit="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/parMaj_renamed_chrom.2bit"
+workdir="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA"
+path_to_nextflow_config_dir="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/nextflow_config_files"
+#renamed_for_TOGA_bed="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/genomic_renamed_toga_BED12.bed"
+chain="/n/netscratch/edwards_lab/Lab/kelsielopez/make_lastz_chains/test6_v2_reDownload/parMaj.ficAlb.final.chain.gz"
+renamed_for_TOGA_bed="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/parus_major/data/GCF_001522545.3/genomic.genePred.bed12.renamed.bed"
+isoform_file="/n/netscratch/edwards_lab/Lab/kelsielopez/Thamnophilus/TOGA/isoforms.tsv"
+
+cd ${workdir}
+
+./toga.py ${chain} ${renamed_for_TOGA_bed} \
+${parMaj_2bit} ${ficAlb_2bit} \
+--kt \
+--nc ${path_to_nextflow_config_dir} --cb 3,5 --cjn 500 \
+--ms \
+--isoforms ${isoform_file} \
+--project_dir test2
 
 
 
