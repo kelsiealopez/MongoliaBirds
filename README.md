@@ -344,7 +344,9 @@ Memory Efficiency: 1.41% of 97.66 GB (97.66 GB/node)
 ```
 
 ## Now that the test is one you have to make these files of your own 
-## TOGA analysis
+## TOGA analysis - Step 1: Make lastz chains 
+# https://github.com/hillerlab/make_lastz_chains 
+# https://github.com/lastz/lastz
 
 ```bash
 # before TOGA you need to prepare a chain file from the program 'makelastzchains'
